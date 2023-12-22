@@ -97,9 +97,16 @@ function App() {
 		});
 	};
 
+	const handleCloseModal = () => {
+		setIsActiveModal(!isActiveModal);
+		setBadges([]);
+		setValue("firstName", "");
+		setValue("lastName", "");
+	}
+
 	return (
 		<div className="w-full min-h-screen flex justify-center items-center">
-			{ isActiveModal && <Modal closeModal={ () => setIsActiveModal(!isActiveModal) } sprites={ sprites }/> }
+			{ isActiveModal && <Modal closeModal={ handleCloseModal } sprites={ sprites }/> }
 			<form
 				className="border rounded border-solid border-[#0000001A] p-4 shadow-md w-[500px]"
 				onSubmit={ handleSubmit(onSubmit) }
