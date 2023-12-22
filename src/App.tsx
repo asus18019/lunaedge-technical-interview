@@ -6,6 +6,7 @@ import Badge from './components/Badge';
 import Dropdown from './components/Dropdown';
 import MultiselectIcons from './components/MultiselectIcons';
 import Input from './components/Input';
+import Modal from './components/Modal';
 
 interface IFormInput {
 	firstName: string;
@@ -18,6 +19,7 @@ const API_LINK = 'https://pokeapi.co/api/v2/';
 function App() {
 	const [badges, setBadges] = useState<string[]>([]);
 	const [isActiveDropdown, setIsActiveDropdown] = useState<boolean>(false);
+	const [isActiveModal, setIsActiveModal] = useState<boolean>(false);
 	const [pokemons, setPokemons] = useState<{ name: string, url: string }[]>([]);
 	const [searchPokemon, setSearchPokemon] = useState<string>('');
 
@@ -42,11 +44,12 @@ function App() {
 
 	const onSubmit: SubmitHandler<IFormInput> = (data) => {
 		if(!data.team || data.team.length !== 4) {
-			setError('team', {
+			return setError('team', {
 				type: 'custom',
 				message: `You must chose only 4 pokemons but you've chosen ${ badges.length }`
 			});
 		}
+		setIsActiveModal(!isActiveModal);
 		console.log(data);
 	};
 
@@ -93,6 +96,7 @@ function App() {
 
 	return (
 		<div className="w-full min-h-screen flex justify-center items-center">
+			{ isActiveModal && <Modal closeModal={ () => setIsActiveModal(!isActiveModal) }/> }
 			<form
 				className="border rounded border-solid border-[#0000001A] p-4 shadow-md w-[500px]"
 				onSubmit={ handleSubmit(onSubmit) }
