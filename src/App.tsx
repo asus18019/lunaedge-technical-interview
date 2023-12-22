@@ -7,6 +7,7 @@ import Dropdown from './components/Dropdown';
 import MultiselectIcons from './components/MultiselectIcons';
 import Input from './components/Input';
 import Modal from './components/Modal';
+import Button from './components/Button';
 
 interface IFormInput {
 	firstName: string;
@@ -14,10 +15,16 @@ interface IFormInput {
 	team: string[];
 }
 
+export type Sprite = {
+	name: string,
+	sprite: string
+}
+
 const API_LINK = 'https://pokeapi.co/api/v2/';
 
 function App() {
 	const [badges, setBadges] = useState<string[]>([]);
+	const [sprites, setSprites] = useState<Sprite[]>([]);
 	const [isActiveDropdown, setIsActiveDropdown] = useState<boolean>(false);
 	const [isActiveModal, setIsActiveModal] = useState<boolean>(false);
 	const [pokemons, setPokemons] = useState<{ name: string, url: string }[]>([]);
@@ -50,7 +57,19 @@ function App() {
 			});
 		}
 		setIsActiveModal(!isActiveModal);
-		console.log(data);
+
+		const pokemonsDetailedPromises = [];
+		for(const pokemon of badges) {
+			pokemonsDetailedPromises.push(axios.get(`${ API_LINK }pokemon/${ pokemon }`));
+		}
+
+		const fetchedSprites: Sprite[] = [];
+		Promise.all(pokemonsDetailedPromises).then(result => {
+			result.forEach(result => {
+				fetchedSprites.push({ name: result.data.species.name, sprite: result.data.sprites.front_default })
+			});
+			setSprites(fetchedSprites);
+		})
 	};
 
 	const handleOnClickBadge = (value: string) => {
@@ -96,7 +115,7 @@ function App() {
 
 	return (
 		<div className="w-full min-h-screen flex justify-center items-center">
-			{ isActiveModal && <Modal closeModal={ () => setIsActiveModal(!isActiveModal) }/> }
+			{ isActiveModal && <Modal closeModal={ () => setIsActiveModal(!isActiveModal) } sprites={ sprites }/> }
 			<form
 				className="border rounded border-solid border-[#0000001A] p-4 shadow-md w-[500px]"
 				onSubmit={ handleSubmit(onSubmit) }
@@ -147,10 +166,7 @@ function App() {
 					<p className={ clsx('text-[#605F6D]', errors.team && 'text-red-400') }>{ errors.team ? errors.team.message : 'This information is required' }</p>
 				</div>
 				<div className="mx-4 my-6">
-					<button
-						className="h-8 bg-[#4B2EBE] rounded text-white px-4 hover:bg-[#7069E7] focus:bg-[#7069E7] outline-2 outline-[#4B2EBE]"
-						type="submit">Submit
-					</button>
+					<Button onClickAction={ () => {} } text="Submit" type="primary"/>
 				</div>
 			</form>
 		</div>
