@@ -1,4 +1,4 @@
-import { RegisterOptions, SubmitHandler, useForm } from 'react-hook-form';
+import { SubmitHandler, useForm } from 'react-hook-form';
 import { useEffect, useRef, useState } from 'react';
 import clsx from 'clsx';
 import axios from 'axios';
@@ -8,6 +8,8 @@ import MultiselectIcons from './components/MultiselectIcons';
 import Input from './components/Input';
 import Modal from './components/Modal';
 import Button from './components/Button';
+import { firstNameRules } from './config/inputValidationRules';
+import { API_LINK } from './config/apiUrl';
 
 interface IFormInput {
 	firstName: string;
@@ -19,8 +21,6 @@ export type Sprite = {
 	name: string,
 	sprite: string
 }
-
-const API_LINK = 'https://pokeapi.co/api/v2/';
 
 function App() {
 	const [badges, setBadges] = useState<string[]>([]);
@@ -66,10 +66,10 @@ function App() {
 		const fetchedSprites: Sprite[] = [];
 		Promise.all(pokemonsDetailedPromises).then(result => {
 			result.forEach(result => {
-				fetchedSprites.push({ name: result.data.species.name, sprite: result.data.sprites.front_default })
+				fetchedSprites.push({ name: result.data.species.name, sprite: result.data.sprites.front_default });
 			});
 			setSprites(fetchedSprites);
-		})
+		});
 	};
 
 	const handleOnClickBadge = (value: string) => {
@@ -97,22 +97,6 @@ function App() {
 		});
 	};
 
-	const firstNameRules: RegisterOptions = {
-		required: 'This field can\'t be empty',
-		pattern: {
-			value: /^[a-zA-Z]+$/,
-			message: "Only characters from a-z and A-Z are accepted."
-		},
-		minLength: {
-			value: 2,
-			message: 'This field must be a least 2 characters'
-		},
-		maxLength: {
-			value: 12,
-			message: 'This field can not be more that 12 characters'
-		}
-	};
-
 	return (
 		<div className="w-full min-h-screen flex justify-center items-center">
 			{ isActiveModal && <Modal closeModal={ () => setIsActiveModal(!isActiveModal) } sprites={ sprites }/> }
@@ -121,8 +105,7 @@ function App() {
 				onSubmit={ handleSubmit(onSubmit) }
 			>
 				<h2 className="font-semibold text-2xl text-center">Pokémon Battle Tower Registration</h2>
-				<Input id={ 'firstName' } errors={ errors.firstName }
-				       register={ register('firstName', firstNameRules) }/>
+				<Input id={ 'firstName' } errors={ errors.firstName } register={ register('firstName', firstNameRules) }/>
 				<Input id={ 'lastName' } errors={ errors.lastName } register={ register('lastName', firstNameRules) }/>
 
 				<div className="mx-4 my-6">
@@ -131,9 +114,12 @@ function App() {
 						<p className="text-[#605F6D]">Optional</p>
 					</div>
 					<div
-						className={ clsx('w-full border border-[#C9C8D0] rounded-lg my-2 px-4 py-2 relative flex justify-between ', isActiveDropdown && 'outline outline-2 outline-[#7360CC]') }
-						onClick={ () => setIsActiveDropdown(!isActiveDropdown) }
 						id="team"
+						className={ clsx(
+							'w-full border border-[#C9C8D0] rounded-lg my-2 px-4 py-2 relative flex justify-between ',
+							isActiveDropdown && 'outline outline-2 outline-[#7360CC]'
+						) }
+						onClick={ () => setIsActiveDropdown(!isActiveDropdown) }
 						{ ...register('team') }
 						ref={ dropDownRef }
 					>
@@ -163,7 +149,9 @@ function App() {
 							handleOnClickBadge={ handleOnClickBadge }
 						/>
 					) }
-					<p className={ clsx('text-[#605F6D]', errors.team && 'text-red-400') }>{ errors.team ? errors.team.message : 'This information is required' }</p>
+					<p className={ clsx('text-[#605F6D]', errors.team && 'text-red-400') }>
+						{ errors.team ? errors.team.message : 'This information is required' }
+					</p>
 				</div>
 				<div className="mx-4 my-6">
 					<Button onClickAction={ () => {} } text="Submit" type="primary"/>
