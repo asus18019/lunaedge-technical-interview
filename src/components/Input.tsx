@@ -1,11 +1,13 @@
-import { UseFormRegisterReturn } from 'react-hook-form';
+import { FieldError, UseFormRegisterReturn } from 'react-hook-form';
+import clsx from 'clsx';
 
 interface InputProps {
 	register: UseFormRegisterReturn<string>;
 	id: string;
+	errors: FieldError | undefined
 }
 
-const Input = ({ register, id }: InputProps) => {
+const Input = ({ register, id, errors }: InputProps) => {
 	return (
 		<div className="mx-4 my-6">
 			<div className="flex justify-between">
@@ -19,7 +21,7 @@ const Input = ({ register, id }: InputProps) => {
 				id={ id }
 				{ ...register }
 			/>
-			<p className="text-[#605F6D]">This information is required.</p>
+			<p className={ clsx("text-[#605F6D]", errors && "text-red-400")}>{ errors ? errors.message : "This information is required" }</p>
 		</div>
 	);
 };

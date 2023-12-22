@@ -1,4 +1,4 @@
-import { SubmitHandler, useForm } from 'react-hook-form';
+import { RegisterOptions, SubmitHandler, useForm } from 'react-hook-form';
 import { useEffect, useRef, useState } from 'react';
 import clsx from 'clsx';
 import axios from 'axios';
@@ -22,7 +22,7 @@ function App() {
 	const [searchPokemon, setSearchPokemon] = useState<string>('');
 
 	const dropDownRef = useRef<HTMLDivElement | null>(null);
-	const { register, handleSubmit, setValue } = useForm<IFormInput>();
+	const { register, handleSubmit, setValue, formState: { errors }, setError, clearErrors } = useForm<IFormInput>();
 
 	useEffect(() => {
 		const handleClickOutsideDropdown = (event: MouseEvent) => {
@@ -40,18 +40,55 @@ function App() {
 			.then(data => setPokemons(data.data.results));
 	}, []);
 
-	const onSubmit: SubmitHandler<IFormInput> = (data) => console.log(data);
+	const onSubmit: SubmitHandler<IFormInput> = (data) => {
+		if(!data.team || data.team.length !== 4) {
+			setError('team', {
+				type: 'custom',
+				message: `You must chose only 4 pokemons but you've chosen ${ badges.length }`
+			});
+		}
+		console.log(data);
+	};
 
 	const handleOnClickBadge = (value: string) => {
 		if(badges.includes(value)) return;
-		setValue("team", [...badges, value]);
+		setValue('team', [...badges, value]);
 		setBadges([...badges, value]);
+		handlePokemonErrors(badges.length + 1);
 	};
 
 	const handleRemoveBadge = (value: string) => {
 		const updatedBadges = badges.filter(badge => badge !== value);
-		setValue("team", updatedBadges);
+		setValue('team', updatedBadges);
 		setBadges(updatedBadges);
+		handlePokemonErrors(updatedBadges.length);
+	};
+
+	const handlePokemonErrors = (selectedPokemons: number) => {
+		if(selectedPokemons == 4) {
+			return clearErrors('team');
+		}
+
+		setError('team', {
+			type: 'custom',
+			message: `You must chose only 4 pokemons but you've chosen ${ selectedPokemons }`
+		});
+	};
+
+	const firstNameRules: RegisterOptions = {
+		required: 'This field can\'t be empty',
+		pattern: {
+			value: /^[a-zA-Z]+$/,
+			message: "Only characters from a-z and A-Z are accepted."
+		},
+		minLength: {
+			value: 2,
+			message: 'This field must be a least 2 characters'
+		},
+		maxLength: {
+			value: 12,
+			message: 'This field can not be more that 12 characters'
+		}
 	};
 
 	return (
@@ -61,8 +98,9 @@ function App() {
 				onSubmit={ handleSubmit(onSubmit) }
 			>
 				<h2 className="font-semibold text-2xl text-center">Pokémon Battle Tower Registration</h2>
-				<Input id={ "firstName" } register={ register('firstName') }/>
-				<Input id={ "lastName" } register={ register('lastName') }/>
+				<Input id={ 'firstName' } errors={ errors.firstName }
+				       register={ register('firstName', firstNameRules) }/>
+				<Input id={ 'lastName' } errors={ errors.lastName } register={ register('lastName', firstNameRules) }/>
 
 				<div className="mx-4 my-6">
 					<div className="flex justify-between">
@@ -102,6 +140,7 @@ function App() {
 							handleOnClickBadge={ handleOnClickBadge }
 						/>
 					) }
+					<p className={ clsx('text-[#605F6D]', errors.team && 'text-red-400') }>{ errors.team ? errors.team.message : 'This information is required' }</p>
 				</div>
 				<div className="mx-4 my-6">
 					<button
