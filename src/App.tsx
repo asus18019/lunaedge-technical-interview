@@ -30,13 +30,13 @@ function App() {
 	const [pokemons, setPokemons] = useState<{ name: string, url: string }[]>([]);
 	const [searchPokemon, setSearchPokemon] = useState<string>('');
 
-	const dropDownRef = useRef<HTMLDivElement | null>(null);
+	const multiselectRef = useRef<HTMLDivElement | null>(null);
 	const { register, handleSubmit, setValue, formState: { errors }, setError, clearErrors } = useForm<IFormInput>();
 
 	useEffect(() => {
 		const handleClickOutsideDropdown = (event: MouseEvent) => {
 			const targetNode = event.target as Node;
-			if(targetNode.contains(dropDownRef.current)) {
+			if(targetNode.contains(multiselectRef.current)) {
 				setIsActiveDropdown(false);
 			}
 		};
@@ -115,7 +115,7 @@ function App() {
 				<Input id={ 'firstName' } errors={ errors.firstName } register={ register('firstName', firstNameRules) }/>
 				<Input id={ 'lastName' } errors={ errors.lastName } register={ register('lastName', firstNameRules) }/>
 
-				<div className="mx-4 my-6">
+				<div className="mx-4 my-6" ref={ multiselectRef }>
 					<div className="flex justify-between">
 						<label className="text-[#18171C] font-medium">Your team</label>
 						<p className="text-[#605F6D]">Optional</p>
@@ -128,7 +128,6 @@ function App() {
 						) }
 						onClick={ () => setIsActiveDropdown(!isActiveDropdown) }
 						{ ...register('team') }
-						ref={ dropDownRef }
 					>
 						{ badges.length ? (
 							<div className="whitespace-nowrap overflow-x-auto">
